@@ -15,6 +15,7 @@ if(help != null) {
   process.exit(0)
 }
 
+if(port < 1 || port > 65535) { port = 5000 }
 
 function coinFlip() {
     let flip_value = 2;
