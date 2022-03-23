@@ -1,0 +1,26 @@
+{
+  "name": "a04-jkalbas1",
+  "version": "1.0.0",
+  "description": "Create, connect, and utilize database",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/comp426-2022-spring/a04-jkalbas1.git"
+  },
+  "keywords": [
+    "database",
+    "log",
+    "logs",
+    "errors",
+    "middleware"
+  ],
+  "author": "Joseph Kalbas",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/comp426-2022-spring/a04-jkalbas1/issues"
+  },
+  "homepage": "https://github.com/comp426-2022-spring/a04-jkalbas1#readme"
+}
