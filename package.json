@@ -4,7 +4,7 @@
   "description": "Create, connect, and utilize database",
   "main": "server.js",
   "scripts": {
-    "test": "node server.js"
+    "test": "node server.js --port=3000"
   },
   "repository": {
     "type": "git",

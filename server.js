@@ -1,8 +1,10 @@
 const express = require('express')
 const args = require('minimist')(process.argv.slice(2))
 const app = express()
+const database = require('better-sqlite3')
+const logdb = new database('log.db')
 
-var port = args.port || 3000
+var port = args.port || 5000
 var debug = args.debug || false
 var log = args.log || true
 var help = args.help
@@ -16,6 +18,30 @@ if(help != null) {
 }
 
 if(port < 1 || port > 65535) { port = 5000 }
+
+const stmt = logdb.prepare(`SELECT name FROM sqlite_master WHERE type='table' and name='access';`)
+let row = stmt.get();
+if(row == undefined) {
+  console.log('Log database is empty. Creating log database...')
+  const sqlInit = `CREATE TABLE accesslog (
+    id INTEGER PRIMARY KEY,
+    remote_addr VARCHAR,
+    remote_user VARCHAR,
+    date VARCHAR,
+    method VARCHAR,
+    url VARCHAR,
+    http_version NUMERIC,
+    status INTEGER,
+    content_length NUMERIC,
+    referrer_url VARCHAR,
+    user_agent VARCHAR
+  );`
+  logdb.exec(sqlInit)
+} else {
+  console.log('Log database exists.')
+}
+
+module.exports = logdb
 
 function coinFlip() {
     let flip_value = 2;
