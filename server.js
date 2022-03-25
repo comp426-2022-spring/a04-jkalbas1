@@ -2,6 +2,8 @@ const express = require('express')
 const args = require('minimist')(process.argv.slice(2))
 const app = express()
 const database = require('better-sqlite3')
+const morgan = require('morgan')
+const fs = require('fs')
 const logdb = new database('log.db')
 
 var port = args.port || 5000
@@ -19,22 +21,23 @@ if(help != null) {
 
 if(port < 1 || port > 65535) { port = 5000 }
 
-const stmt = logdb.prepare(`SELECT name FROM sqlite_master WHERE type='table' and name='access';`)
+let stmt = logdb.prepare(`SELECT name FROM sqlite_master WHERE type='table' and name='accesslog';`)
 let row = stmt.get();
 if(row == undefined) {
   console.log('Log database is empty. Creating log database...')
   const sqlInit = `CREATE TABLE accesslog (
-    id INTEGER PRIMARY KEY,
-    remote_addr VARCHAR,
-    remote_user VARCHAR,
-    date VARCHAR,
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    remoteaddr VARCHAR,
+    remoteuser VARCHAR,
+    time VARCHAR,
     method VARCHAR,
     url VARCHAR,
-    http_version NUMERIC,
+    protocol VARCHAR,
+    httpversion NUMERIC,
+    secure VARCHAR,
     status INTEGER,
-    content_length NUMERIC,
-    referrer_url VARCHAR,
-    user_agent VARCHAR
+    referer VARCHAR,
+    useragent VARCHAR
   );`
   logdb.exec(sqlInit)
 } else {
@@ -148,11 +151,11 @@ const server = app.listen(port, () => {
     console.log(`App listening on port ${port}`)
 });
 
-app.get('/app', (req, res)  => {
-    res.statusCode = 200
-    res.statusMessage = 'OK'
-    res.writeHead( res.statusCode, {'Content-Type' : 'text/plain'})
-    res.end(res.statusCode + ' ' + res.statusMessage)
+app.get('/app', (req, res, next)  => {
+  res.statusCode = 200
+  res.statusMessage = 'OK'
+  res.writeHead( res.statusCode, {'Content-Type' : 'text/plain'})
+  res.end(res.statusCode + ' ' + res.statusMessage)
 })
 
 app.get('/app/flips/:number', (req, res) => {
@@ -173,6 +176,26 @@ app.get('/app/flip/call/:guess', (req, res) => {
     res.status(200).send(guessedFlip)
 })
 
-app.use(function(req, res){
-    res.status(404).send('404 NOT FOUND')
+app.use(function(req, res, next){
+  let logdata = {
+    remoteaddr: req.ip,
+    remoteuser: req.user,
+    time: Date.now(),
+    method: req.method,
+    url: req.url,
+    protocol: req.protocol,
+    httpversion: req.httpVersion,
+    secure: (req.secure) ? 1 : 0,
+    status: req.status,
+    referer: req.headers['referer'],
+    useragent: req.headers['user-agent']
+  }
+  const stmt1 = logdb.prepare('INSERT INTO accesslog(remoteaddr, remoteuser, time, method, url, protocol, httpversion, secure, status, referer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+  let info = stmt1.run(Object.values(logdata))
+  next()
 })
+
+if (log) {
+  let writestream = fs.createWriteStream('access.log', {flags: 'a'})
+  app.use(morgan('combined', {stream: writestream}))
+}
