@@ -144,14 +144,13 @@ function flips(number) {
   
 function flip() {
     return coinFlip()
-  }
-
+}
 
 const server = app.listen(port, () => {
     console.log(`App listening on port ${port}`)
 });
 
-app.get('/app', (req, res, next)  => {
+app.get('/app', (req, res)  => {
   res.statusCode = 200
   res.statusMessage = 'OK'
   res.writeHead( res.statusCode, {'Content-Type' : 'text/plain'})
@@ -176,6 +175,29 @@ app.get('/app/flip/call/:guess', (req, res) => {
     res.status(200).send(guessedFlip)
 })
 
+app.get('app/log/access', (req, res, next) => {
+  if(debug) {
+    res.status(200)
+    const sql_access_get = logdb.prepare('SELECT * FROM accesslog').all()
+    res.status(200).json(sql_access_get)
+  } else {
+    res.status(404).send('404 page not found')
+  }
+})
+
+if (debug) {
+  console.log(debug)
+  app.get('app/error', (req, res) => {
+    throw new Error('Error test successful')
+  })
+
+}
+
+if (log) {
+  let writestream = fs.createWriteStream('access.log', {flags: 'a'})
+  app.use(morgan('combined', {stream: writestream}))
+}
+
 app.use(function(req, res, next){
   let logdata = {
     remoteaddr: req.ip,
@@ -195,7 +217,6 @@ app.use(function(req, res, next){
   next()
 })
 
-if (log) {
-  let writestream = fs.createWriteStream('access.log', {flags: 'a'})
-  app.use(morgan('combined', {stream: writestream}))
-}
+app.use(function(req, res) {
+  res.status(404).send('404 page not found')
+})
