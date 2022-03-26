@@ -175,22 +175,21 @@ app.get('/app/flip/call/:guess', (req, res) => {
     res.status(200).send(guessedFlip)
 })
 
-app.get('app/log/access', (req, res, next) => {
-  if(debug) {
-    res.status(200)
-    const sql_access_get = logdb.prepare('SELECT * FROM accesslog').all()
-    res.status(200).json(sql_access_get)
-  } else {
-    res.status(404).send('404 page not found')
-  }
+app.get('/app/log', (req, res) => {
+  res.status(200).send('ok')
 })
 
+
+
 if (debug) {
-  console.log(debug)
-  app.get('app/error', (req, res) => {
+  app.get('/app/error', (req, res) => {
     throw new Error('Error test successful')
   })
 
+  app.get('/app/log/access', (req, res, next) => {
+    const sql_access_get = logdb.prepare('SELECT * FROM accesslog').all()
+    res.status(200).json(sql_access_get)
+  })
 }
 
 if (log) {
