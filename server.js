@@ -183,7 +183,6 @@ app.get('/app/log', (req, res) => {
 
 if (debug) {
   app.get('/app/error', (req, res) => {
-    res.status(200).send('Error test successful')
     throw new Error('Error test successful')
   })
 
@@ -222,5 +221,6 @@ app.use(function(req, res, next){
 })
 
 app.use(function(req, res) {
+  console.log(log)
   res.status(404).send('404 page not found')
 })
