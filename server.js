@@ -187,8 +187,12 @@ if (debug) {
   })
 
   app.get('/app/log/access', (req, res, next) => {
-    const sql_access_get = logdb.prepare('SELECT * FROM accesslog').all()
-    res.status(200).json(sql_access_get)
+    try {
+      const sql_access_get = logdb.prepare('SELECT * FROM accesslog').all()
+      res.status(200).json(sql_access_get)
+    } catch (e) {
+      console.error(e)
+    }
   })
 }
 
@@ -212,7 +216,7 @@ app.use(function(req, res, next){
     useragent: req.headers['user-agent']
   }
   const stmt1 = logdb.prepare('INSERT INTO accesslog(remoteaddr, remoteuser, time, method, url, protocol, httpversion, secure, status, referer, useragent) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
-  let info = stmt1.run(Object.values(logdata))
+  stmt1.run(Object.values(logdata))
   next()
 })
 
