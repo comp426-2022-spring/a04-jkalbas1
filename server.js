@@ -6,10 +6,10 @@ const morgan = require('morgan')
 const fs = require('fs')
 const logdb = new database('log.db')
 
-var port = args.port || 5000
-var debug = args.debug || false
-var log = args.log || true
-var help = args.help
+const port = args.port || 5000
+const debug = args.debug || false
+const log = args.log || true
+const help = args.help
 
 if(help != null) {
   console.log('--port     Set the port number for the server to listen on. Must be an integer between 1 and 65535.\n')
@@ -17,6 +17,11 @@ if(help != null) {
   console.log('--log      If set to false, no log files are written. Defaults to true. Logs are always written to database.\n')
   console.log('--help     Return this message and exit.')
   process.exit(0)
+}
+
+if (log) {
+  const accesslog = fs.createWriteStream('access.log', {flags: 'a'})
+  app.use(morgan('FORMAT', {stream: accesslog}))
 }
 
 if(port < 1 || port > 65535) { port = 5000 }
@@ -194,11 +199,6 @@ if (debug) {
       console.error(e)
     }
   })
-}
-
-if (log) {
-  let writestream = fs.createWriteStream('access.log', {flags: 'a'})
-  app.use(morgan('combined', {stream: writestream}))
 }
 
 app.use(function(req, res, next){
