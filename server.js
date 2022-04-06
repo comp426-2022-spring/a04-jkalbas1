@@ -26,7 +26,7 @@ let row = stmt.get();
 if(row == undefined) {
   console.log('Log database is empty. Creating log database...')
   const sqlInit = `CREATE TABLE accesslog (
-    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     remoteaddr VARCHAR,
     remoteuser VARCHAR,
     time VARCHAR,
