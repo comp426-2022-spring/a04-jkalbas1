@@ -183,6 +183,7 @@ app.get('/app/log', (req, res) => {
 
 if (debug) {
   app.get('/app/error', (req, res) => {
+    res.status(200).send('Error test successful')
     throw new Error('Error test successful')
   })
 
