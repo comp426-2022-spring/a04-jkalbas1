@@ -19,9 +19,9 @@ if(help != null) {
   process.exit(0)
 }
 
-if (log) {
+if (log === true) {
   const accesslog = fs.createWriteStream('access.log', {flags: 'a'})
-  app.use(morgan('FORMAT', {stream: accesslog}))
+  app.use(morgan('combined', {stream: accesslog}))
 }
 
 if(port < 1 || port > 65535) { port = 5000 }
@@ -49,7 +49,6 @@ if(row == undefined) {
   console.log('Log database exists.')
 }
 
-module.exports = logdb
 
 function coinFlip() {
     let flip_value = 2;
